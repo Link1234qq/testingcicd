@@ -1,0 +1,9 @@
+# Shared action: run tests
+name: Run tests
+description: Run test suite
+runs:
+  using: composite
+  steps:
+    - name: Run tests
+      shell: bash
+      run: echo "Running tests"

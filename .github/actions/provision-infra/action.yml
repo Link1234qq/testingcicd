@@ -1,0 +1,13 @@
+# Shared action: provision infrastructure for an environment
+name: Provision infra
+description: Provision infra for given environment
+inputs:
+  env:
+    description: Environment name (dev, stage, prod)
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Provision infra for ${{ inputs.env }}
+      shell: bash
+      run: echo "Provisioning infrastructure for ${{ inputs.env }}"

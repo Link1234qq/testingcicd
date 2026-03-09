@@ -1,0 +1,13 @@
+# Shared action: deploy to Kubernetes for an environment
+name: Deploy to Kubernetes
+description: Deploy app to Kubernetes cluster
+inputs:
+  env:
+    description: Environment name (dev, stage, prod)
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Deploy to ${{ inputs.env }}
+      shell: bash
+      run: echo "Deploying to Kubernetes cluster (${{ inputs.env }})"

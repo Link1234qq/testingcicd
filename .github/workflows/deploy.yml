@@ -1,0 +1,24 @@
+# Reusable workflow: deploy to Kubernetes for one environment
+name: Deploy to Kubernetes
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        description: Environment name (dev, stage, prod)
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy - ${{ inputs.env }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Kubernetes
+        uses: ./.github/actions/deploy-k8s
+        with:
+          env: ${{ inputs.env }}

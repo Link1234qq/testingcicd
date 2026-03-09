@@ -1,0 +1,24 @@
+# Reusable workflow: provision infrastructure for one environment
+name: Provision infra
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        description: Environment name (dev, stage, prod)
+        required: true
+        type: string
+
+jobs:
+  provision:
+    name: Provision infra - ${{ inputs.env }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Provision infra
+        uses: ./.github/actions/provision-infra
+        with:
+          env: ${{ inputs.env }}

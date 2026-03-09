@@ -1,0 +1,9 @@
+# Shared action: build application (DRY — single place for build step)
+name: Build app
+description: Build the application
+runs:
+  using: composite
+  steps:
+    - name: Build app
+      shell: bash
+      run: echo "Building my app"

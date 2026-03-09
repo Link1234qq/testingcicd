@@ -1,0 +1,16 @@
+# Reusable workflow: build Docker image and push to registry
+name: Docker build
+
+on:
+  workflow_call:
+
+jobs:
+  docker_build:
+    name: Build & push Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and push image
+        uses: ./.github/actions/docker-build-push

@@ -1,0 +1,19 @@
+# Reusable workflow: CI (build & test). Call from main workflow.
+name: CI
+
+on:
+  workflow_call:
+
+jobs:
+  ci:
+    name: CI - build & test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build app
+        uses: ./.github/actions/build-app
+
+      - name: Run tests
+        uses: ./.github/actions/run-tests
