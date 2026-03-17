@@ -13,7 +13,6 @@ jobs:
     name: Docker build
     uses: ./.github/workflows/docker-build.yml
     needs: run-ci
-    secrets: inherit
 
   infra-dev:
     name: Infra dev
@@ -21,7 +20,6 @@ jobs:
     needs: docker-build
     with:
       env: dev
-    secrets: inherit
 
   deploy-dev:
     name: Deploy dev
@@ -29,5 +27,7 @@ jobs:
     needs: infra-dev
     with:
       env: dev
-    secrets: inherit
+    secrets:
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
 

@@ -14,7 +14,6 @@ jobs:
     name: Docker build
     uses: ./.github/workflows/docker-build.yml
     needs: run-ci
-    secrets: inherit
 
   infra-prod:
     name: Infra prod
@@ -22,7 +21,6 @@ jobs:
     needs: docker-build
     with:
       env: prod
-    secrets: inherit
 
   deploy-prod:
     name: Deploy prod
@@ -30,5 +28,7 @@ jobs:
     needs: infra-prod
     with:
       env: prod
-    secrets: inherit
+    secrets:
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
 

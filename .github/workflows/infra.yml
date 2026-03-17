@@ -24,6 +24,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Show environment context
+        shell: bash
+        run: |
+          echo "Workflow: ${WORKFLOW_NAME}"
+          echo "Environment: ${ENV_NAME}"
+          echo "TF_VAR_environment: ${TF_VAR_environment}"
+
       - name: Provision infra
         uses: ./.github/actions/provision-infra
         with:
