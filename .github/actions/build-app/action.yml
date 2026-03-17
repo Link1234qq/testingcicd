@@ -1,9 +1,11 @@
 # Shared action: build application (DRY — single place for build step)
 name: Build app
-description: Build the application
+description: Build the application (placeholder; replace with real build command)
 runs:
   using: composite
   steps:
-    - name: Build app
+    - name: Build app (placeholder)
       shell: bash
-      run: echo "Building my app"
+      run: |
+        echo "Building app (placeholder)"
+        echo "TODO: replace this step with real build commands."

@@ -10,11 +10,28 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   IMAGE_NAME: ${{ vars.IMAGE_NAME }}
   CONTAINER_REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
 
 jobs:
+  workflow-lint:
+    name: Lint workflows (actionlint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1
+
   # --- CI: always run (build + test) ---
   call-ci:
     name: CI
@@ -24,7 +41,7 @@ jobs:
   docker-build:
     name: Docker build
     uses: ./.github/workflows/docker-build.yml
-    needs: [call-ci]
+    needs: [workflow-lint, call-ci]
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     secrets: inherit
 
@@ -46,10 +63,27 @@ jobs:
       env: dev
     secrets: inherit
 
+  smoke-dev:
+    name: Smoke test dev (optional)
+    runs-on: ubuntu-latest
+    needs: [deploy-dev]
+    if: always()
+    steps:
+      - name: Smoke test endpoint
+        shell: bash
+        run: |
+          if [ -z "${{ vars.DEV_HEALTHCHECK_URL }}" ]; then
+            echo "DEV_HEALTHCHECK_URL is not set (repo variable). Skipping."
+            exit 0
+          fi
+          echo "Checking ${{ vars.DEV_HEALTHCHECK_URL }}"
+          curl -fsSL "${{ vars.DEV_HEALTHCHECK_URL }}"
+    continue-on-error: true
+
   infra-stage:
     name: Infra stage
     uses: ./.github/workflows/infra.yml
-    needs: [deploy-dev]
+    needs: [smoke-dev]
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: stage
@@ -64,10 +98,27 @@ jobs:
       env: stage
     secrets: inherit
 
+  smoke-stage:
+    name: Smoke test stage (optional)
+    runs-on: ubuntu-latest
+    needs: [deploy-stage]
+    if: always()
+    steps:
+      - name: Smoke test endpoint
+        shell: bash
+        run: |
+          if [ -z "${{ vars.STAGE_HEALTHCHECK_URL }}" ]; then
+            echo "STAGE_HEALTHCHECK_URL is not set (repo variable). Skipping."
+            exit 0
+          fi
+          echo "Checking ${{ vars.STAGE_HEALTHCHECK_URL }}"
+          curl -fsSL "${{ vars.STAGE_HEALTHCHECK_URL }}"
+    continue-on-error: true
+
   infra-prod:
     name: Infra prod
     uses: ./.github/workflows/infra.yml
-    needs: [deploy-stage]
+    needs: [smoke-stage]
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: prod
@@ -81,3 +132,20 @@ jobs:
     with:
       env: prod
     secrets: inherit
+
+  smoke-prod:
+    name: Smoke test prod (optional)
+    runs-on: ubuntu-latest
+    needs: [deploy-prod]
+    if: always()
+    steps:
+      - name: Smoke test endpoint
+        shell: bash
+        run: |
+          if [ -z "${{ vars.PROD_HEALTHCHECK_URL }}" ]; then
+            echo "PROD_HEALTHCHECK_URL is not set (repo variable). Skipping."
+            exit 0
+          fi
+          echo "Checking ${{ vars.PROD_HEALTHCHECK_URL }}"
+          curl -fsSL "${{ vars.PROD_HEALTHCHECK_URL }}"
+    continue-on-error: true

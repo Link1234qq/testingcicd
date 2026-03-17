@@ -8,6 +8,13 @@ on:
         description: Environment name (dev, stage, prod)
         required: true
         type: string
+    secrets:
+      KUBE_CONFIG:
+        description: Kubeconfig for cluster access
+        required: true
+      REGISTRY_PASSWORD:
+        description: Container registry password for image pull
+        required: false
 
 jobs:
   deploy:
@@ -17,6 +24,8 @@ jobs:
     env:
       ENV_NAME: ${{ inputs.env }}
       K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}-${{ inputs.env }}
+      KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,3 +34,4 @@ jobs:
         uses: ./.github/actions/deploy-k8s
         with:
           env: ${{ inputs.env }}
+          kube-config: ${{ secrets.KUBE_CONFIG }}

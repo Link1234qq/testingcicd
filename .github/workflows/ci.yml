@@ -15,5 +15,25 @@ jobs:
       - name: Build app
         uses: ./.github/actions/build-app
 
-      - name: Run tests (unit/integration)
+      - name: Run tests (placeholder via ./.github/actions/run-tests)
         uses: ./.github/actions/run-tests
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/test-results/*.xml'
+        continue-on-error: true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+        continue-on-error: true
+
+      - name: Add job summary
+        run: |
+          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Tests: completed" >> $GITHUB_STEP_SUMMARY

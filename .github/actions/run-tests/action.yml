@@ -1,9 +1,11 @@
 # Shared action: run tests
 name: Run tests
-description: Run test suite
+description: Run placeholder test suite (replace with real test command)
 runs:
   using: composite
   steps:
-    - name: Run tests
+    - name: Run tests (placeholder)
       shell: bash
-      run: echo "Running tests"
+      run: |
+        echo "Running tests (placeholder)"
+        echo "TODO: replace this step with real commands, e.g. 'npm test', 'pytest', 'mvn test', etc."

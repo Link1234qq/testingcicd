@@ -9,6 +9,9 @@ on:
         required: true
         type: string
 
+env:
+  WORKFLOW_NAME: provision-infra
+
 jobs:
   provision:
     name: provision-infra-${{ inputs.env }}
