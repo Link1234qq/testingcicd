@@ -1,0 +1,33 @@
+name: ci-stage
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  run-ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  docker-build:
+    name: Docker build
+    uses: ./.github/workflows/docker-build.yml
+    needs: run-ci
+    secrets: inherit
+
+  infra-stage:
+    name: Infra stage
+    uses: ./.github/workflows/infra.yml
+    needs: docker-build
+    with:
+      env: stage
+    secrets: inherit
+
+  deploy-stage:
+    name: Deploy stage
+    uses: ./.github/workflows/deploy.yml
+    needs: infra-stage
+    with:
+      env: stage
+    secrets: inherit
+

@@ -1,4 +1,4 @@
-# Reusable workflow: CI (build & test). Call from main workflow.
+# Reusable workflow: CI (lint, build & tests). Called from main workflows.
 name: CI
 
 on:
@@ -6,14 +6,29 @@ on:
 
 jobs:
   ci:
-    name: CI - build & test
+    name: ci - lint, build & tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Static analysis
+        run: npm run typecheck
+
       - name: Build app
         uses: ./.github/actions/build-app
 
-      - name: Run tests
+      - name: Run unit and integration tests
         uses: ./.github/actions/run-tests

@@ -11,9 +11,12 @@ on:
 
 jobs:
   deploy:
-    name: Deploy - ${{ inputs.env }}
+    name: deploy-${{ inputs.env }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.env }}
+    env:
+      ENV_NAME: ${{ inputs.env }}
+      K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}-${{ inputs.env }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

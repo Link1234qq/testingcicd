@@ -11,9 +11,12 @@ on:
 
 jobs:
   provision:
-    name: Provision infra - ${{ inputs.env }}
+    name: provision-infra-${{ inputs.env }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.env }}
+    env:
+      ENV_NAME: ${{ inputs.env }}
+      TF_VAR_environment: ${{ inputs.env }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -1,6 +1,6 @@
 # Full CI/CD pipeline: Docker app → infra → deploy to K8s per env
 
-name: CI CD
+name: ci-cd
 
 on:
   push:
@@ -10,70 +10,113 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
 
+env:
+  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+  CONTAINER_REGISTRY: ${{ vars.CONTAINER_REGISTRY }}
+
 jobs:
   # --- CI: always run (build + test) ---
-  call_ci:
+  call-ci:
     name: CI
     uses: ./.github/workflows/ci.yml
 
+  # --- Additional quality gates before CD ---
+  code-quality:
+    name: Code quality checks
+    runs-on: ubuntu-latest
+    needs: call-ci
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Static analysis
+        run: npm run typecheck
+
+  security-scan:
+    name: Dependency security scan
+    runs-on: ubuntu-latest
+    needs: call-ci
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
   # --- CD: only on merge to main (pull_request merged) — build image then sequential promotion with infra before each deploy ---
-  call_docker_build:
+  docker-build:
     name: Docker build
     uses: ./.github/workflows/docker-build.yml
-    needs: [call_ci]
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && success()
+    needs: [call-ci, code-quality, security-scan]
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     secrets: inherit
 
-  call_infra_dev:
+  infra-dev:
     name: Infra dev
     uses: ./.github/workflows/infra.yml
-    needs: [call_docker_build]
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && success()
+    needs: [docker-build]
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: dev
     secrets: inherit
 
-  call_deploy_dev:
+  deploy-dev:
     name: Deploy dev
     uses: ./.github/workflows/deploy.yml
-    needs: [call_infra_dev]
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && success()
+    needs: [infra-dev]
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: dev
     secrets: inherit
 
-  call_infra_stage:
+  infra-stage:
     name: Infra stage
     uses: ./.github/workflows/infra.yml
-    needs: [call_deploy_dev]
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && success()
+    needs: [deploy-dev]
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: stage
     secrets: inherit
 
-  call_deploy_stage:
+  deploy-stage:
     name: Deploy stage
     uses: ./.github/workflows/deploy.yml
-    needs: [call_infra_stage]
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && success()
+    needs: [infra-stage]
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: stage
     secrets: inherit
 
-  call_infra_prod:
+  infra-prod:
     name: Infra prod
     uses: ./.github/workflows/infra.yml
-    needs: [call_deploy_stage]
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && success()
+    needs: [deploy-stage]
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: prod
     secrets: inherit
 
-  call_deploy_prod:
+  deploy-prod:
     name: Deploy prod
     uses: ./.github/workflows/deploy.yml
-    needs: [call_infra_prod]
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && success()
+    needs: [infra-prod]
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     with:
       env: prod
     secrets: inherit
