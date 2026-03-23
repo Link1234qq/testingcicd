@@ -70,11 +70,11 @@ jobs:
             echo "No test:integration script found. Skipping."
           fi
 
+      - name: Run unit tests (placeholder via ./.github/actions/run-tests)
+        uses: ./.github/actions/run-tests
+
       - name: Build app
         uses: ./.github/actions/build-app
-
-      - name: Run tests (placeholder via ./.github/actions/run-tests)
-        uses: ./.github/actions/run-tests
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2.23.0
