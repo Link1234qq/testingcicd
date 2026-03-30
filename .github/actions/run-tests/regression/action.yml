@@ -1,0 +1,10 @@
+# Composite action: regression tests (placeholder)
+name: Regression tests
+description: Placeholder — echo only, no real tests
+runs:
+  using: composite
+  steps:
+    - name: Regression tests (placeholder)
+      shell: bash
+      run: |
+        echo "[MOCK] Regression testing (placeholder)"

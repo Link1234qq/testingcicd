@@ -1,0 +1,10 @@
+# Composite action: performance tests (placeholder)
+name: Performance tests
+description: Placeholder — echo only, no real tests
+runs:
+  using: composite
+  steps:
+    - name: Performance tests (placeholder)
+      shell: bash
+      run: |
+        echo "[MOCK] Performance testing (placeholder)"

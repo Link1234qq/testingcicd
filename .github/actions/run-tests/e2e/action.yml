@@ -1,0 +1,10 @@
+# Composite action: E2E tests (placeholder)
+name: E2E tests
+description: Placeholder — echo only, no real tests
+runs:
+  using: composite
+  steps:
+    - name: E2E tests (placeholder)
+      shell: bash
+      run: |
+        echo "[MOCK] E2E testing (placeholder)"

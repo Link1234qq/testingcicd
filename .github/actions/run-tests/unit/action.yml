@@ -1,0 +1,10 @@
+# Composite action: unit tests (placeholder)
+name: Unit tests
+description: Placeholder — echo only, no real tests
+runs:
+  using: composite
+  steps:
+    - name: Unit tests (placeholder)
+      shell: bash
+      run: |
+        echo "[MOCK] Unit testing (placeholder)"

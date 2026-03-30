@@ -22,16 +22,19 @@ jobs:
       TF_VAR_environment: ${{ inputs.env }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
 
       - name: Show environment context
         shell: bash
         run: |
           echo "Workflow: ${WORKFLOW_NAME}"
-          echo "Environment: ${ENV_NAME}"
+          echo "inputs.env (call input): ${{ inputs.env }}"
+          echo "env.ENV_NAME (expression): ${{ env.ENV_NAME }}"
+          echo "Shell ENV_NAME: ${ENV_NAME}"
           echo "TF_VAR_environment: ${TF_VAR_environment}"
 
       - name: Provision infra
         uses: ./.github/actions/provision-infra
         with:
-          env: ${{ inputs.env }}
+          env: ${{ env.ENV_NAME }}

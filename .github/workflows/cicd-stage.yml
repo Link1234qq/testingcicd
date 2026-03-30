@@ -1,8 +1,8 @@
-name: ci-dev
+name: CI/CD stage
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
 
 jobs:
   run-ci:
@@ -14,20 +14,19 @@ jobs:
     uses: ./.github/workflows/docker-build.yml
     needs: run-ci
 
-  infra-dev:
-    name: Infra dev
+  infra-stage:
+    name: Infra stage
     uses: ./.github/workflows/infra.yml
     needs: docker-build
     with:
-      env: dev
+      env: stage
 
-  deploy-dev:
-    name: Deploy dev
+  deploy-stage:
+    name: Deploy stage
     uses: ./.github/workflows/deploy.yml
-    needs: infra-dev
+    needs: infra-stage
     with:
-      env: dev
+      env: stage
     secrets:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-

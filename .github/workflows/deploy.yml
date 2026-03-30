@@ -28,7 +28,16 @@ jobs:
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      # Same env pattern as infra.yml: inputs vs job env vs GitHub Environment (see infra workflow comments).
+      - name: Show environment context
+        shell: bash
+        run: |
+          echo "inputs.env (call input): ${{ inputs.env }}"
+          echo "env.ENV_NAME (expression): ${{ env.ENV_NAME }}"
+          echo "Shell ENV_NAME: ${ENV_NAME}"
+          echo "K8S_NAMESPACE (from env): ${K8S_NAMESPACE}"
 
       - name: Deploy to Kubernetes
         uses: ./.github/actions/deploy-k8s

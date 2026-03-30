@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Detect project type
         id: detect
@@ -25,7 +25,7 @@ jobs:
       # Optional quality gates (run only when package.json exists)
       - name: Set up Node.js
         if: ${{ steps.detect.outputs.node == 'true' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -70,25 +70,20 @@ jobs:
             echo "No test:integration script found. Skipping."
           fi
 
-      # Mock test stages — echo only (no real test execution; replace with real runners when ready)
-      - name: Regression tests (mock)
-        shell: bash
-        run: echo "[MOCK] Regression tests — placeholder, no real execution."
+      - name: Regression tests
+        uses: ./.github/actions/run-tests/regression
 
-      - name: E2E tests (mock)
-        shell: bash
-        run: echo "[MOCK] End-to-end tests — placeholder, no real execution."
+      - name: E2E tests
+        uses: ./.github/actions/run-tests/e2e
 
-      - name: Smoke tests (mock)
-        shell: bash
-        run: echo "[MOCK] Smoke tests — placeholder, no real execution."
+      - name: Performance tests
+        uses: ./.github/actions/run-tests/performance
 
-      - name: Performance tests (mock)
-        shell: bash
-        run: echo "[MOCK] Performance/load tests — placeholder, no real execution."
+      - name: Run unit tests
+        uses: ./.github/actions/run-tests/unit
 
-      - name: Run unit tests (placeholder via ./.github/actions/run-tests)
-        uses: ./.github/actions/run-tests
+      - name: Smoke tests
+        uses: ./.github/actions/run-tests/smoketests
 
       - name: Build app
         uses: ./.github/actions/build-app
@@ -101,7 +96,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-output
           path: dist/

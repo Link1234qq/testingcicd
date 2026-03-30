@@ -1,9 +1,8 @@
-name: ci-prod
+name: CI/CD dev
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches: [develop]
 
 jobs:
   run-ci:
@@ -15,19 +14,19 @@ jobs:
     uses: ./.github/workflows/docker-build.yml
     needs: run-ci
 
-  infra-prod:
-    name: Infra prod
+  infra-dev:
+    name: Infra dev
     uses: ./.github/workflows/infra.yml
     needs: docker-build
     with:
-      env: prod
+      env: dev
 
-  deploy-prod:
-    name: Deploy prod
+  deploy-dev:
+    name: Deploy dev
     uses: ./.github/workflows/deploy.yml
-    needs: infra-prod
+    needs: infra-dev
     with:
-      env: prod
+      env: dev
     secrets:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
