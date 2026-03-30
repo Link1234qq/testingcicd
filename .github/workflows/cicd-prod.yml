@@ -24,8 +24,8 @@ jobs:
 
   deploy-prod:
     name: Deploy prod
-    # Waits for GitHub Environment protection (manual approval) when "prod" has required reviewers.
-    environment: prod
+    # Prod approvals: deploy.yml sets environment: ${{ inputs.env }} on the deploy job, so branch/env
+    # protection rules (e.g. required reviewers on "prod") still apply when env is prod.
     uses: ./.github/workflows/deploy.yml
     needs: infra-prod
     with:

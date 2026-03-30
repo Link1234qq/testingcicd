@@ -16,7 +16,7 @@ jobs:
         if: ${{ steps.detect.outputs.node == 'true' }}
         shell: bash
         run: |
-        echo "Installing dependencies"
+          echo "Installing dependencies"
 
       - name: Integration tests
         uses: ./.github/actions/run-tests/integration
