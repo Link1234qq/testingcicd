@@ -30,3 +30,28 @@ jobs:
     secrets:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
+  notify-teams:
+    name: Notify Teams (stage)
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [run-ci, docker-build, infra-stage, deploy-stage]
+    steps:
+      - name: Echo notification based on workflow status
+        shell: bash
+        env:
+          RUN_CI_RESULT: ${{ needs['run-ci'].result }}
+          DOCKER_BUILD_RESULT: ${{ needs['docker-build'].result }}
+          INFRA_STAGE_RESULT: ${{ needs['infra-stage'].result }}
+          DEPLOY_STAGE_RESULT: ${{ needs['deploy-stage'].result }}
+        run: |
+          if [[ "${RUN_CI_RESULT}" == "success" && \
+                "${DOCKER_BUILD_RESULT}" == "success" && \
+                "${INFRA_STAGE_RESULT}" == "success" && \
+                "${DEPLOY_STAGE_RESULT}" == "success" ]]; then
+            echo "TEAMS NOTIFICATION: CI/CD stage succeeded"
+          else
+            echo "TEAMS NOTIFICATION: CI/CD stage failed"
+            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-stage=${INFRA_STAGE_RESULT}, deploy-stage=${DEPLOY_STAGE_RESULT}"
+            exit 0
+          fi

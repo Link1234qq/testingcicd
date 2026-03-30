@@ -48,3 +48,30 @@ jobs:
     secrets:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
+  notify-teams:
+    name: Notify Teams (prod)
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [run-ci, docker-build, infra-prod, regression-tests-prod, deploy-prod]
+    steps:
+      - name: Echo notification based on workflow status
+        shell: bash
+        env:
+          RUN_CI_RESULT: ${{ needs['run-ci'].result }}
+          DOCKER_BUILD_RESULT: ${{ needs['docker-build'].result }}
+          INFRA_PROD_RESULT: ${{ needs['infra-prod'].result }}
+          REGRESSION_TESTS_PROD_RESULT: ${{ needs['regression-tests-prod'].result }}
+          DEPLOY_PROD_RESULT: ${{ needs['deploy-prod'].result }}
+        run: |
+          if [[ "${RUN_CI_RESULT}" == "success" && \
+                "${DOCKER_BUILD_RESULT}" == "success" && \
+                "${INFRA_PROD_RESULT}" == "success" && \
+                "${REGRESSION_TESTS_PROD_RESULT}" == "success" && \
+                "${DEPLOY_PROD_RESULT}" == "success" ]]; then
+            echo "TEAMS NOTIFICATION: CI/CD prod succeeded"
+          else
+            echo "TEAMS NOTIFICATION: CI/CD prod failed"
+            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-prod=${INFRA_PROD_RESULT}, regression-tests-prod=${REGRESSION_TESTS_PROD_RESULT}, deploy-prod=${DEPLOY_PROD_RESULT}"
+            exit 0
+          fi
