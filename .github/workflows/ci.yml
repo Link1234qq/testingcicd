@@ -70,6 +70,23 @@ jobs:
             echo "No test:integration script found. Skipping."
           fi
 
+      # Mock test stages — echo only (no real test execution; replace with real runners when ready)
+      - name: Regression tests (mock)
+        shell: bash
+        run: echo "[MOCK] Regression tests — placeholder, no real execution."
+
+      - name: E2E tests (mock)
+        shell: bash
+        run: echo "[MOCK] End-to-end tests — placeholder, no real execution."
+
+      - name: Smoke tests (mock)
+        shell: bash
+        run: echo "[MOCK] Smoke tests — placeholder, no real execution."
+
+      - name: Performance tests (mock)
+        shell: bash
+        run: echo "[MOCK] Performance/load tests — placeholder, no real execution."
+
       - name: Run unit tests (placeholder via ./.github/actions/run-tests)
         uses: ./.github/actions/run-tests
 
