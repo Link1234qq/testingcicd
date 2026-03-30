@@ -23,9 +23,19 @@ jobs:
       env: prod
 
   regression-tests-prod:
-    name: Regression tests prod
-    uses: ./.github/actions/run-tests/regression
+    name: Regression tests prod (post-infra)
+    runs-on: ubuntu-latest
     needs: infra-prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download build artifacts
+        run: |
+          echo "Downloading build artifacts"
+
+      - name: Regression tests
+        uses: ./.github/actions/run-tests/regression
 
   deploy-prod:
     name: Deploy prod
