@@ -22,12 +22,17 @@ jobs:
     with:
       env: prod
 
+  regression-tests-prod:
+    name: Regression tests prod
+    uses: ./.github/actions/run-tests/regression
+    needs: infra-prod
+
   deploy-prod:
     name: Deploy prod
     # Prod approvals: deploy.yml sets environment: ${{ inputs.env }} on the deploy job, so branch/env
     # protection rules (e.g. required reviewers on "prod") still apply when env is prod.
     uses: ./.github/workflows/deploy.yml
-    needs: infra-prod
+    needs: regression-tests-prod
     with:
       env: prod
     secrets:
