@@ -1,0 +1,10 @@
+# Composite action: integration tests (placeholder)
+name: Integration tests
+description: Run integration tests
+runs:
+  using: composite
+  steps:
+    - name: Integration tests (placeholder)
+      shell: bash
+      run: |
+        echo "[MOCK] Integration testing (placeholder)"

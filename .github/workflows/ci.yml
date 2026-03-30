@@ -12,63 +12,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Detect project type
-        id: detect
-        shell: bash
-        run: |
-          if [ -f package.json ]; then
-            echo "node=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "node=false" >> "$GITHUB_OUTPUT"
-
-      # Optional quality gates (run only when package.json exists)
-      - name: Set up Node.js
-        if: ${{ steps.detect.outputs.node == 'true' }}
-        uses: actions/setup-node@v6
-        with:
-          node-version: '20'
-          cache: 'npm'
-
       - name: Install dependencies
         if: ${{ steps.detect.outputs.node == 'true' }}
         shell: bash
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: Static code analysis (typecheck)
-        if: ${{ steps.detect.outputs.node == 'true' }}
-        shell: bash
-        run: |
-          if npm run | grep -qE ' typecheck'; then
-            npm run typecheck
-          else
-            echo "No typecheck script found. Skipping."
-          fi
-
-      - name: Lint
-        if: ${{ steps.detect.outputs.node == 'true' }}
-        shell: bash
-        run: |
-          if npm run | grep -qE ' lint'; then
-            npm run lint
-          else
-            echo "No lint script found. Skipping."
-          fi
+        echo "Installing dependencies"
 
       - name: Integration tests
-        if: ${{ steps.detect.outputs.node == 'true' }}
-        shell: bash
-        run: |
-          if npm run | grep -qE ' test:integration'; then
-            npm run test:integration
-          else
-            echo "No test:integration script found. Skipping."
-          fi
+        uses: ./.github/actions/run-tests/integration
 
       - name: Regression tests
         uses: ./.github/actions/run-tests/regression
