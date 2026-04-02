@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /build
 
-RUN set -eu; \
+RUN set -e; \
     curl -sSL "https://ftp.postgresql.org/pub/source/v11.6/postgresql-11.6.tar.gz" -o "postgresql-11.6.tar.gz"; \
     curl -sSL "https://ftp.postgresql.org/pub/source/v12.19/postgresql-12.19.tar.gz" -o "postgresql-12.19.tar.gz"; \
     tar xzf "postgresql-11.6.tar.gz"; \
