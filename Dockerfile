@@ -28,7 +28,7 @@ RUN set -eu; \
         postgresql-11.6.tar.gz postgresql-12.19.tar.gz
 
 
-RUN set; \
+RUN \
     mkdir -p /runtime/usr/local/pgsql; \
     mkdir -p /runtime/lib/x86_64-linux-gnu; \
     mkdir -p /runtime/usr/lib/x86_64-linux-gnu; \
@@ -39,13 +39,13 @@ RUN set; \
     mkdir -p /runtime/tmp && chmod 1777 /runtime/tmp; \
     mkdir -p /runtime/etc/postgresql; 
 
-RUN set; \
+RUN \
     echo 'postgres:x:10001:10001:PostgreSQL:/var/lib/postgresql:/bin/sh' > /runtime/etc/passwd; \
     echo 'postgres:x:10001:' > /runtime/etc/group; \
     chown -R 10001:10001 /runtime/var/lib/postgresql; \
     chmod 1777 /runtime/var/lib/postgresql/data;
 
-RUN set; \
+RUN \
     cp -a /usr/local/pgsql/11 /runtime/usr/local/pgsql/11; \
     cp -a /usr/local/pgsql/12 /runtime/usr/local/pgsql/12; \
     cp -a /lib/x86_64-linux-gnu/libssl.so.* /runtime/lib/x86_64-linux-gnu/; \
@@ -72,8 +72,7 @@ RUN set; \
 COPY postgresql-11.conf /runtime/etc/postgresql/11/postgresql.conf.template
 COPY postgresql-12.conf /runtime/etc/postgresql/12/postgresql.conf.template
 
-COPY entrypoint.sh /runtime/entrypoint.sh
-RUN chmod +x /runtime/entrypoint.sh
+COPY --chmod=0755 entrypoint.sh /runtime/entrypoint.sh
 
 FROM scratch AS runtime
 

@@ -33,7 +33,26 @@ done
 NEED_CONF=0
 if [ ! -s "${PGDATA}/PG_VERSION" ]; then
   mkdir -p "$PGDATA"
-  initdb -D "$PGDATA" --locale=C --encoding=UTF8 --username=postgres
+
+  # Require password on first init and prefer file-based secret passing.
+  # POSTGRES_PASSWORD_FILE is the secure option (docker secrets / bind-mounted file).
+  PWFILE="${POSTGRES_PASSWORD_FILE:-}"
+  if [ -n "$PWFILE" ]; then
+    if [ ! -r "$PWFILE" ]; then
+      echo "POSTGRES_PASSWORD_FILE is set but not readable: $PWFILE" >&2
+      exit 1
+    fi
+  elif [ -n "${POSTGRES_PASSWORD:-}" ]; then
+    PWFILE="${PGDATA}/.postgres_password"
+    umask 077
+    printf '%s\n' "${POSTGRES_PASSWORD}" > "$PWFILE"
+  else
+    echo "Database password is required on first init." >&2
+    echo "Set POSTGRES_PASSWORD_FILE (preferred) or POSTGRES_PASSWORD." >&2
+    exit 1
+  fi
+
+  initdb -D "$PGDATA" --locale=C --encoding=UTF8 --username=postgres --pwfile="$PWFILE"
   NEED_CONF=1
 fi
 
