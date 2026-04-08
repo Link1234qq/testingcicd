@@ -79,7 +79,7 @@ jobs:
       - run-ci
       - docker-build
       - infra-prod
-      - regression-tests-prod
+      - tests-prod
       - deploy-prod
     steps:
       - name: Echo notification based on workflow status
@@ -88,7 +88,7 @@ jobs:
           RUN_CI_RESULT: ${{ needs['run-ci'].result }}
           DOCKER_BUILD_RESULT: ${{ needs['docker-build'].result }}
           INFRA_PROD_RESULT: ${{ needs['infra-prod'].result }}
-          REGRESSION_TESTS_PROD_RESULT: ${{ needs['regression-tests-prod'].result }}
+          TESTS_PROD_RESULT: ${{ needs['tests-prod'].result }}
           DEPLOY_PROD_RESULT: ${{ needs['deploy-prod'].result }}
         run: |
           if [[ "${RUN_CI_RESULT}" == "success" && \
