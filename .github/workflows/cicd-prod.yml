@@ -22,8 +22,8 @@ jobs:
     with:
       env: prod
 
-  regression-tests-prod:
-    name: Regression tests prod (post-infra)
+  tests-prod:
+    name: Tests prod (post-infra)
     runs-on: ubuntu-latest
     needs: infra-prod
     steps:
@@ -55,8 +55,8 @@ jobs:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   
-  regression-tests-prod:
-    name: Regression tests prod (post-infra)
+  performance-tests-prod:
+    name: Performance tests prod (post-deploy)
     runs-on: ubuntu-latest
     needs: infra-prod
     steps:

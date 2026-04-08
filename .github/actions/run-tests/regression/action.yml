@@ -1,6 +1,11 @@
 # Composite action: regression tests (placeholder)
 name: Regression tests
-description: Placeholder — echo only, no real tests
+description: Run regression tests
+on:
+  schedule:
+    # Every day at 03:00 UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 runs:
   using: composite
   steps:
