@@ -37,6 +37,15 @@ jobs:
       - name: Regression tests
         uses: ./.github/actions/run-tests/regression
 
+      - name: Smoke tests
+        uses: ./.github/actions/run-tests/smoketests
+
+      - name: Performance tests
+        uses: ./.github/actions/run-tests/performance
+
+      - name: E2E tests
+        uses: ./.github/actions/run-tests/e2e
+
   deploy-prod:
     name: Deploy prod
     # Prod approvals: deploy.yml sets environment: ${{ inputs.env }} on the deploy job, so branch/env
@@ -53,7 +62,14 @@ jobs:
     name: Notify Teams (prod)
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [run-ci, docker-build, infra-prod, regression-tests-prod, deploy-prod]
+    needs:
+      - run-ci
+      - docker-build
+      - infra-prod
+      - regression-tests-prod
+      - deploy-prod
+      - e2e-tests-prod
+      - performance-tests-prod
     steps:
       - name: Echo notification based on workflow status
         shell: bash
@@ -63,15 +79,19 @@ jobs:
           INFRA_PROD_RESULT: ${{ needs['infra-prod'].result }}
           REGRESSION_TESTS_PROD_RESULT: ${{ needs['regression-tests-prod'].result }}
           DEPLOY_PROD_RESULT: ${{ needs['deploy-prod'].result }}
+          E2E_PROD_RESULT: ${{ needs['e2e-tests-prod'].result }}
+          PERF_PROD_RESULT: ${{ needs['performance-tests-prod'].result }}
         run: |
           if [[ "${RUN_CI_RESULT}" == "success" && \
                 "${DOCKER_BUILD_RESULT}" == "success" && \
                 "${INFRA_PROD_RESULT}" == "success" && \
                 "${REGRESSION_TESTS_PROD_RESULT}" == "success" && \
-                "${DEPLOY_PROD_RESULT}" == "success" ]]; then
+                "${DEPLOY_PROD_RESULT}" == "success" && \
+                "${E2E_PROD_RESULT}" == "success" && \
+                "${PERF_PROD_RESULT}" == "success" ]]; then
             echo "TEAMS NOTIFICATION: CI/CD prod succeeded"
           else
             echo "TEAMS NOTIFICATION: CI/CD prod failed"
-            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-prod=${INFRA_PROD_RESULT}, regression-tests-prod=${REGRESSION_TESTS_PROD_RESULT}, deploy-prod=${DEPLOY_PROD_RESULT}"
+            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-prod=${INFRA_PROD_RESULT}, regression-tests-prod=${REGRESSION_TESTS_PROD_RESULT}, deploy-prod=${DEPLOY_PROD_RESULT}, e2e-tests-prod=${E2E_PROD_RESULT}, performance-tests-prod=${PERF_PROD_RESULT}"
             exit 0
           fi

@@ -31,11 +31,39 @@ jobs:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
 
+  e2e-tests-dev:
+    name: E2E tests dev
+    runs-on: ubuntu-latest
+    needs: deploy-dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: E2E tests
+        uses: ./.github/actions/run-tests/e2e
+
+  performance-tests-dev:
+    name: Performance tests dev
+    runs-on: ubuntu-latest
+    needs: e2e-tests-dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Performance tests
+        uses: ./.github/actions/run-tests/performance
+
   notify-teams:
     name: Notify Teams (dev)
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [run-ci, docker-build, infra-dev, deploy-dev]
+    needs:
+      - run-ci
+      - docker-build
+      - infra-dev
+      - deploy-dev
+      - e2e-tests-dev
+      - performance-tests-dev
     steps:
       - name: Echo notification based on workflow status
         shell: bash
@@ -44,15 +72,19 @@ jobs:
           DOCKER_BUILD_RESULT: ${{ needs['docker-build'].result }}
           INFRA_DEV_RESULT: ${{ needs['infra-dev'].result }}
           DEPLOY_DEV_RESULT: ${{ needs['deploy-dev'].result }}
+          E2E_DEV_RESULT: ${{ needs['e2e-tests-dev'].result }}
+          PERF_DEV_RESULT: ${{ needs['performance-tests-dev'].result }}
         run: |
           if [[ "${RUN_CI_RESULT}" == "success" && \
                 "${DOCKER_BUILD_RESULT}" == "success" && \
                 "${INFRA_DEV_RESULT}" == "success" && \
-                "${DEPLOY_DEV_RESULT}" == "success" ]]; then
+                "${DEPLOY_DEV_RESULT}" == "success" && \
+                "${E2E_DEV_RESULT}" == "success" && \
+                "${PERF_DEV_RESULT}" == "success" ]]; then
             echo "TEAMS NOTIFICATION: CI/CD dev succeeded"
           else
             echo "TEAMS NOTIFICATION: CI/CD dev failed"
-            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-dev=${INFRA_DEV_RESULT}, deploy-dev=${DEPLOY_DEV_RESULT}"
+            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-dev=${INFRA_DEV_RESULT}, deploy-dev=${DEPLOY_DEV_RESULT}, e2e-tests-dev=${E2E_DEV_RESULT}, performance-tests-dev=${PERF_DEV_RESULT}"
             exit 0
           fi
 
