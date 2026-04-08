@@ -48,7 +48,7 @@ jobs:
     # Prod approvals: deploy.yml sets environment: ${{ inputs.env }} on the deploy job, so branch/env
     # protection rules (e.g. required reviewers on "prod") still apply when env is prod.
     uses: ./.github/workflows/deploy.yml
-    needs: regression-tests-prod
+    needs: tests-prod
     with:
       env: prod
     secrets:
