@@ -1,0 +1,19 @@
+docker commands task from scratch
+
+##starting container
+
+docker run -d --name pg12 \
+  -p 5433:5432 \
+  -v pgdata12:/var/lib/postgresql/data \
+  -v "$(pwd)/postgres-password.txt:/run/secrets/postgres_password:ro" \
+  -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
+  pg-scratch-test \
+  12 or 11
+
+##checking logs
+docker logs -f pg11
+
+
+## checking version
+
+docker run --rm pg-scratch-test 11 --version
