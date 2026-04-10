@@ -1,11 +1,6 @@
 name: Regression cron prod
 
 on:
-  push:
-    branches:
-      - '**'
-    tags:
-      - '**'
   schedule:
     # Every day at 03:00 UTC
     - cron: '0 3 * * *'

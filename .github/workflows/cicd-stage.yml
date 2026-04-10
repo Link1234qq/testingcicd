@@ -2,10 +2,7 @@ name: CI/CD stage
 
 on:
   push:
-    branches:
-      - '**'
-    tags:
-      - '**'
+    branches: [main]
   workflow_dispatch:
 
 jobs:

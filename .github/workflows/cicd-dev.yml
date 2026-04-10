@@ -2,10 +2,7 @@ name: CI/CD dev
 
 on:
   push:
-    branches:
-      - '**'
-    tags:
-      - '**'
+    branches: [develop]
   workflow_dispatch:
 
 jobs:
