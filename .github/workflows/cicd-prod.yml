@@ -40,8 +40,6 @@ jobs:
       - name: Smoke tests
         uses: ./.github/actions/run-tests/smoketests
 
-      - name: E2E tests
-        uses: ./.github/actions/run-tests/e2e
 
   deploy-prod:
     name: Deploy prod
@@ -55,8 +53,8 @@ jobs:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   
-  performance-tests-prod:
-    name: Performance tests prod (post-deploy)
+  e2e-tests-prod:
+    name: E2E tests prod (post-deploy)
     runs-on: ubuntu-latest
     needs: infra-prod
     steps:
@@ -67,8 +65,8 @@ jobs:
         run: |
           echo "Downloading build artifacts"
 
-      - name: Performance tests
-        uses: ./.github/actions/run-tests/performance
+      - name: E2E tests
+        uses: ./.github/actions/run-tests/e2e
 
 
   notify-teams:
@@ -90,12 +88,13 @@ jobs:
           INFRA_PROD_RESULT: ${{ needs['infra-prod'].result }}
           TESTS_PROD_RESULT: ${{ needs['tests-prod'].result }}
           DEPLOY_PROD_RESULT: ${{ needs['deploy-prod'].result }}
+          E2E_TESTS_PROD_RESULT: ${{ needs['e2e-tests-prod'].result }}
         run: |
           if [[ "${RUN_CI_RESULT}" == "success" && \
                 "${DOCKER_BUILD_RESULT}" == "success" && \
                 "${INFRA_PROD_RESULT}" == "success" && \
-                "${REGRESSION_TESTS_PROD_RESULT}" == "success" && \
-                "${DEPLOY_PROD_RESULT}" == "success" ]]; then
+                "${DEPLOY_PROD_RESULT}" == "success" && \
+                "${E2E_TESTS_PROD_RESULT}" == "success" ]]; then
             echo "TEAMS NOTIFICATION: CI/CD prod succeeded"
           else
             echo "TEAMS NOTIFICATION: CI/CD prod failed"
