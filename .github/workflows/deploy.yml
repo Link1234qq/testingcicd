@@ -1,0 +1,45 @@
+# Reusable workflow: deploy to Kubernetes for one environment
+name: Deploy to Kubernetes
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        description: Environment name (dev, stage, prod)
+        required: true
+        type: string
+    secrets:
+      KUBE_CONFIG:
+        description: Kubeconfig for cluster access
+        required: true
+      REGISTRY_PASSWORD:
+        description: Container registry password for image pull
+        required: false
+
+jobs:
+  deploy:
+    name: deploy-${{ inputs.env }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    env:
+      ENV_NAME: ${{ inputs.env }}
+      K8S_NAMESPACE: ${{ vars.K8S_NAMESPACE }}-${{ inputs.env }}
+      KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Same env pattern as infra.yml: inputs vs job env vs GitHub Environment (see infra workflow comments).
+      - name: Show environment context
+        shell: bash
+        run: |
+          echo "inputs.env (call input): ${{ inputs.env }}"
+          echo "env.ENV_NAME (expression): ${{ env.ENV_NAME }}"
+          echo "Shell ENV_NAME: ${ENV_NAME}"
+          echo "K8S_NAMESPACE (from env): ${K8S_NAMESPACE}"
+
+      - name: Deploy to Kubernetes
+        uses: ./.github/actions/deploy-k8s
+        with:
+          env: ${{ inputs.env }}

@@ -1,0 +1,10 @@
+# Composite action: smoke tests (placeholder)
+name: Smoke tests
+description: Placeholder — echo only, no real tests
+runs:
+  using: composite
+  steps:
+    - name: Smoke tests (placeholder)
+      shell: bash
+      run: |
+        echo "[MOCK] Smoke testing (placeholder)"

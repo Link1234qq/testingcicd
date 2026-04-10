@@ -1,0 +1,14 @@
+# Shared action: build Docker image and push to registry
+name: Docker build and push
+description: Build image and push to registry
+inputs:
+  image-name:
+    description: Image name
+    required: false
+    default: myapp
+runs:
+  using: composite
+  steps:
+    - name: Build Docker image and push to registry
+      shell: bash
+      run: echo "Building Docker image and pushing to registry"
