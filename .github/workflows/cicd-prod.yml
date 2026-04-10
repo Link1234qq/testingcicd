@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
 
 jobs:
   run-ci:
@@ -56,14 +57,10 @@ jobs:
   e2e-tests-prod:
     name: E2E tests prod (post-deploy)
     runs-on: ubuntu-latest
-    needs: infra-prod
+    needs: deploy-prod
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-
-      - name: Download build artifacts
-        run: |
-          echo "Downloading build artifacts"
 
       - name: E2E tests
         uses: ./.github/actions/run-tests/e2e
@@ -79,6 +76,7 @@ jobs:
       - infra-prod
       - tests-prod
       - deploy-prod
+      - e2e-tests-prod
     steps:
       - name: Echo notification based on workflow status
         shell: bash
@@ -93,11 +91,12 @@ jobs:
           if [[ "${RUN_CI_RESULT}" == "success" && \
                 "${DOCKER_BUILD_RESULT}" == "success" && \
                 "${INFRA_PROD_RESULT}" == "success" && \
+                "${TESTS_PROD_RESULT}" == "success" && \
                 "${DEPLOY_PROD_RESULT}" == "success" && \
                 "${E2E_TESTS_PROD_RESULT}" == "success" ]]; then
             echo "TEAMS NOTIFICATION: CI/CD prod succeeded"
           else
             echo "TEAMS NOTIFICATION: CI/CD prod failed"
-            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-prod=${INFRA_PROD_RESULT}, regression-tests-prod=${REGRESSION_TESTS_PROD_RESULT}, deploy-prod=${DEPLOY_PROD_RESULT}"
+            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-prod=${INFRA_PROD_RESULT}, tests-prod=${TESTS_PROD_RESULT}, deploy-prod=${DEPLOY_PROD_RESULT}, e2e-tests-prod=${E2E_TESTS_PROD_RESULT}"
             exit 0
           fi

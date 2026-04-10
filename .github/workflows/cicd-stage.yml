@@ -3,6 +3,7 @@ name: CI/CD stage
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   run-ci:
@@ -70,12 +71,10 @@ jobs:
                 "${DOCKER_BUILD_RESULT}" == "success" && \
                 "${INFRA_STAGE_RESULT}" == "success" && \
                 "${DEPLOY_STAGE_RESULT}" == "success" && \
-                "${SMOKE_STAGE_RESULT}" == "success" && \
-                "${E2E_STAGE_RESULT}" == "success" && \
-                "${PERF_STAGE_RESULT}" == "success" ]]; then
+                "${E2E_AND_PERF_STAGE_RESULT}" == "success" ]]; then
             echo "TEAMS NOTIFICATION: CI/CD stage succeeded"
           else
             echo "TEAMS NOTIFICATION: CI/CD stage failed"
-            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-stage=${INFRA_STAGE_RESULT}, deploy-stage=${DEPLOY_STAGE_RESULT}, smoke-tests-stage=${SMOKE_STAGE_RESULT}, e2e-tests-stage=${E2E_STAGE_RESULT}, performance-tests-stage=${PERF_STAGE_RESULT}"
+            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-stage=${INFRA_STAGE_RESULT}, deploy-stage=${DEPLOY_STAGE_RESULT}, e2e-and-performance-tests-stage=${E2E_AND_PERF_STAGE_RESULT}"
             exit 0
           fi

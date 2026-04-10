@@ -3,6 +3,7 @@ name: CI/CD dev
 on:
   push:
     branches: [develop]
+  workflow_dispatch:
 
 jobs:
   run-ci:
@@ -73,7 +74,7 @@ jobs:
             echo "TEAMS NOTIFICATION: CI/CD dev succeeded"
           else
             echo "TEAMS NOTIFICATION: CI/CD dev failed"
-            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-dev=${INFRA_DEV_RESULT}, deploy-dev=${DEPLOY_DEV_RESULT}, e2e-tests-dev=${E2E_DEV_RESULT}, performance-tests-dev=${PERF_DEV_RESULT}"
+            echo "Results: run-ci=${RUN_CI_RESULT}, docker-build=${DOCKER_BUILD_RESULT}, infra-dev=${INFRA_DEV_RESULT}, deploy-dev=${DEPLOY_DEV_RESULT}, tests-dev=${TESTS_DEV_RESULT}"
             exit 0
           fi
 
