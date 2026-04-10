@@ -2,8 +2,10 @@ name: CI/CD prod
 
 on:
   push:
+    branches:
+      - '**'
     tags:
-      - 'v*.*.*'
+      - '**'
   workflow_dispatch:
 
 jobs:
